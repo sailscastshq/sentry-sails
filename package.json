@@ -1,0 +1,40 @@
+{
+  "name": "sails-sentry",
+  "version": "0.0.1",
+  "description": "A Sails.js hook for integrating Sentry, providing application monitoring and error tracking",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "sails",
+    "sentry",
+    "error",
+    "monitoring"
+  ],
+  "author": "Kelvin Omereshone<kelvin@sailscasts.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sailscastshq/sails-hook-sentry.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sailscastshq/sails-hook-sentry/issues"
+  },
+  "homepage": "https://github.com/sailscastshq/sails-hook-sentry#readme",
+  "sails": {
+    "isHook": true,
+    "hookName": "sentry"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "@sentry/node": "^8.52.1"
+  }
+}
