@@ -14,7 +14,7 @@ To use the Sentry hook in your Sails.js application, add the following configura
 
 ```javascript
 module.exports.sentry = {
-  dsn: 'your-sentry-dsn'
+  dsn: process.env.SENTRY_DSN
 }
 ```
 
