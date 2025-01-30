@@ -1,7 +1,7 @@
 {
   "name": "sails-sentry",
   "version": "0.0.0",
-  "description": "Sails hook for Sentry - Application Monitoring and Error Tracking",
+  "description": "A Sails.js hook for integrating Sentry, providing application monitoring and error tracking",
   "main": "index.js",
   "scripts": {},
   "keywords": [
@@ -30,5 +30,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
