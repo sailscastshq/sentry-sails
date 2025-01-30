@@ -1,11 +1,11 @@
-# Sails Sentry
+# Sentry SDK for Sails
 
 A Sails hook for to easily setup up Application Monitoring and Error Tracking with Sentry in Sails applications
 
 ## Installation
 
 ```bash
-npm install sails-sentry
+npm install sentry-sails
 ```
 
 ## Usage
@@ -14,15 +14,13 @@ To use the Sentry hook in your Sails.js application, add the following configura
 
 ```javascript
 module.exports.sentry = {
-  dsn: 'your-sentry-dsn',
-  environment: process.env.NODE_ENV || 'development',
-};
+  dsn: 'your-sentry-dsn'
+}
 ```
 
 ## Configuration
 
 - `dsn`: Your Sentry Data Source Name (DSN).
-- `environment`: The environment in which your application is running (e.g., development, production).
 
 ## License
 
