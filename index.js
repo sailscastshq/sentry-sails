@@ -1,46 +1,64 @@
 /**
- * sentry hook
+ * sentry-sails hook
  *
- * @description :: A hook definition.  Extends Sails by adding shadow routes, implicit actions, and/or initialization logic.
- * @docs        :: https://sailsjs.com/docs/concepts/extending-sails/hooks
+ * @description :: A Sails hook for Sentry error tracking and performance monitoring.
+ * @docs        :: https://docs.sailscasts.com/sentry-sails
  */
 const Sentry = require('@sentry/node')
+
 module.exports = function defineSentryHook(sails) {
   return {
-    /**
-     * Runs when this Sails app loads/lifts.
-     */
     defaults: {
-      tracesSampleRate: 1.0,
-      // Set sampling rate for profiling - this is relative to tracesSampleRate
-      profilesSampleRate: 1.0,
-      tracing: true,
-      spotlight: true
+      sentry: {
+        tracesSampleRate: 1.0,
+        profilesSampleRate: 1.0,
+        environment: process.env.NODE_ENV || 'development',
+        release: process.env.SENTRY_RELEASE,
+        sendDefaultPii: true
+      }
     },
-    initialize: async function () {
+
+    configure: function () {
+      const dsn = sails.config.sentry.dsn || process.env.SENTRY_DSN
+
+      if (!dsn) {
+        sails.log.warn(
+          'sentry-sails: No DSN configured. Sentry will not capture errors.'
+        )
+        sails.log.warn(
+          'sentry-sails: Set SENTRY_DSN environment variable or configure dsn in config/sentry.js'
+        )
+      }
+    },
+
+    initialize: function (done) {
       sails.after('hook:http:loaded', () => {
-        const sentryInitOptions = {
-          ...sails.config.sentry,
-          integrations: [
-            // enable HTTP calls tracing
-            new Sentry.Integrations.Http({
-              tracing: sails.config.sentry.tracing
-            }),
-            // enable Express.js middleware tracing
-            new Sentry.Integrations.Express({ app: sails.hooks.http.app })
-          ]
+        const config = sails.config.sentry
+        const dsn = config.dsn || process.env.SENTRY_DSN
+
+        if (!dsn) {
+          sails.log.verbose('sentry-sails: Skipping initialization (no DSN)')
+          return done()
         }
-        Sentry.init(sentryInitOptions)
-        // The request handler must be the first middleware on the app
-        sails.hooks.http.app.use(Sentry.Handlers.requestHandler())
 
-        // TracingHandler creates a trace for every incoming request
-        sails.hooks.http.app.use(Sentry.Handlers.tracingHandler())
+        Sentry.init({
+          dsn,
+          environment: config.environment,
+          tracesSampleRate: config.tracesSampleRate,
+          profilesSampleRate: config.profilesSampleRate,
+          sendDefaultPii: config.sendDefaultPii,
+          ...config
+        })
 
-        // The error handler must be registered before any other error middleware and after all controllers
-        sails.hooks.http.app.use(Sentry.Handlers.errorHandler())
+        sails.after('ready', () => {
+          Sentry.setupExpressErrorHandler(sails.hooks.http.app)
+          sails.log.verbose('sentry-sails: Express error handler attached')
+        })
 
-        sails.log.info('Initializing custom hook (`sentry`)')
+        sails.sentry = Sentry
+
+        sails.log.info('sentry-sails: Initialized successfully')
+        return done()
       })
     }
   }

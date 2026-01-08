@@ -1,14 +1,17 @@
 {
   "name": "sentry-sails",
-  "version": "0.0.1",
-  "description": "Sails SDK/hook for Sentry (https://sentry.io)",
+  "version": "1.0.0",
+  "description": "Sails hook for Sentry error tracking and performance monitoring",
   "main": "index.js",
   "scripts": {},
   "keywords": [
     "sails",
     "sentry",
     "error",
-    "monitoring"
+    "monitoring",
+    "apm",
+    "tracing",
+    "performance"
   ],
   "author": "Kelvin Omereshone<kelvin@sailscasts.com>",
   "license": "MIT",
@@ -19,10 +22,16 @@
   "bugs": {
     "url": "https://github.com/sailscastshq/sentry-sails/issues"
   },
-  "homepage": "https://github.com/sailscastshq/sentry-sails#readme",
+  "homepage": "https://docs.sailscasts.com/sentry-sails",
   "sails": {
     "isHook": true,
     "hookName": "sentry"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "sails": ">=1.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
@@ -35,6 +44,6 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@sentry/node": "^8.52.1"
+    "@sentry/node": "^9.0.0"
   }
 }
