@@ -19,7 +19,9 @@ module.exports = function defineSentryHook(sails) {
     },
 
     configure: function () {
-      const dsn = sails.config.sentry.dsn || process.env.SENTRY_DSN
+      // Initialize Sentry early, BEFORE Express is loaded by the http hook
+      const config = sails.config.sentry
+      const dsn = config.dsn || process.env.SENTRY_DSN
 
       if (!dsn) {
         sails.log.warn(
@@ -28,38 +30,36 @@ module.exports = function defineSentryHook(sails) {
         sails.log.warn(
           'sentry-sails: Set SENTRY_DSN environment variable or configure dsn in config/sentry.js'
         )
+        return
       }
+
+      Sentry.init({
+        dsn,
+        environment: config.environment,
+        tracesSampleRate: config.tracesSampleRate,
+        profilesSampleRate: config.profilesSampleRate,
+        sendDefaultPii: config.sendDefaultPii,
+        ...config
+      })
+
+      sails.sentry = Sentry
+      sails.log.info('sentry-sails: Initialized successfully')
     },
 
     initialize: function (done) {
-      sails.after('hook:http:loaded', () => {
-        const config = sails.config.sentry
-        const dsn = config.dsn || process.env.SENTRY_DSN
+      const dsn = sails.config.sentry.dsn || process.env.SENTRY_DSN
 
-        if (!dsn) {
-          sails.log.verbose('sentry-sails: Skipping initialization (no DSN)')
-          return done()
-        }
-
-        Sentry.init({
-          dsn,
-          environment: config.environment,
-          tracesSampleRate: config.tracesSampleRate,
-          profilesSampleRate: config.profilesSampleRate,
-          sendDefaultPii: config.sendDefaultPii,
-          ...config
-        })
-
-        sails.after('ready', () => {
-          Sentry.setupExpressErrorHandler(sails.hooks.http.app)
-          sails.log.verbose('sentry-sails: Express error handler attached')
-        })
-
-        sails.sentry = Sentry
-
-        sails.log.info('sentry-sails: Initialized successfully')
+      if (!dsn) {
         return done()
+      }
+
+      // Attach the Express error handler after the app is ready
+      sails.after('hook:http:loaded', () => {
+        Sentry.setupExpressErrorHandler(sails.hooks.http.app)
+        sails.log.verbose('sentry-sails: Express error handler attached')
       })
+
+      return done()
     }
   }
 }
